@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Gensyn Pioneer Quiz — Day 6 Pro</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap');
+:root{--bg1:#7f00ff; --bg2:#e100ff; --accent:#ffeb3b}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:'Poppins',system-ui,Arial,sans-serif;color:#fff;background:linear-gradient(135deg,var(--bg1),var(--bg2));overflow:hidden}
+.bg-anim{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(circle at 20% 20%, rgba(255,255,255,0.03), transparent 8%), radial-gradient(circle at 80% 80%, rgba(0,0,0,0.06), transparent 15%);mix-blend-mode:overlay;animation: drift 12s linear infinite}
+@keyframes drift{0%{transform:translate(0,0)}50%{transform:translate(20px,-10px)}100%{transform:translate(0,0)}}
+.container{position:relative;z-index:2;width:100%;max-width:900px;padding:28px}
+.card{background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));border-radius:16px;padding:28px;box-shadow:0 16px 50px rgba(0,0,0,0.35);backdrop-filter: blur(8px)}
+.header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.title{font-weight:800;letter-spacing:4px;text-transform:uppercase;color:transparent;background:linear-gradient(90deg,#fff,#ffef8a,#fff);-webkit-background-clip:text;font-size:22px}
+.badge{background:rgba(255,255,255,0.06);padding:8px 12px;border-radius:999px;font-weight:600;color:#fff;font-size:13px}
+.intro{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:18px 8px;text-align:center}
+.gensyn{font-size:40px;font-weight:800;letter-spacing:6px}
+.lead{color:rgba(255,255,255,0.92)}
+.start-btn{background:linear-gradient(90deg,var(--accent),#ffd36b);color:#7f00ff;padding:12px 22px;border-radius:12px;border:none;font-weight:700;cursor:pointer;font-size:16px}
+.start-btn:hover{transform:translateY(-3px)}
+.quiz{display:none}
+.progress{font-weight:700}
+.timer{font-weight:700;color:#ffeb3b;margin-top:6px}
+.question{font-size:18px;margin:16px 0;color:#fff}
+.options{list-style:none;padding:0;margin:0}
+.options li{margin:10px 0}
+.options label{display:block;padding:12px;border-radius:12px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));cursor:pointer;border:1px solid rgba(255,255,255,0.04);transition:all .16s}
+.options input{display:none}
+.options label:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,0.28)}
+.options input:checked + span{background:linear-gradient(90deg,var(--accent),#ffd36b);color:#7f00ff;padding:8px 12px;border-radius:10px;display:inline-block}
+.controls{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:18px}
+.btn{background:transparent;border:1px solid rgba(255,255,255,0.08);padding:10px 16px;border-radius:10px;color:#fff;cursor:pointer;font-weight:600}
+.btn.primary{background:linear-gradient(90deg,var(--accent),#ffd36b);color:#7f00ff;border:none}
+.result{margin-top:18px;text-align:center;padding:14px;border-radius:12px;background:linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));font-weight:700}
+@media (max-width:600px){.gensyn{font-size:28px}.card{padding:18px}}
+</style>
+</head>
+<body>
+<div class="bg-anim" aria-hidden></div>
+<div class="container">
+  <div class="card">
+    <div class="header">
+      <div class="title">Gensyn Pioneer — Day 6 Pro</div>
+      <div class="badge">10 Questions</div>
+    </div>
+
+    <div id="intro" class="intro">
+      <div class="gensyn">GENSYN</div>
+      <div class="lead">🚀 Welcome to the Pro Day 6 challenge — 10 fresh questions on Gensyn & decentralized AI. You have 10s per question!</div>
+      <button id="startBtn" class="start-btn">Start Quiz</button>
+    </div>
+
+    <div id="quizWrap" class="quiz">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="badge">Day 6</div>
+        <div class="progress" id="progress">Q1 / 10</div>
+      </div>
+      <div class="timer" id="timer">⏱ 10s</div>
+      <div id="quizArea"></div>
+
+      <div class="controls">
+        <div>
+          <button id="prevBtn" class="btn">Previous</button>
+        </div>
+        <div>
+          <button id="nextBtn" class="btn primary">Next</button>
+        </div>
+      </div>
+
+      <div id="result" class="result" style="display:none"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const quiz = [
+  {q:'Gensyn Pioneer Program का मुख्य उद्देश्य क्या है?', opts:['AI compute को decentralized बनाना','NFT minting','Web2 app hosting','Token speculation'], a:0},
+  {q:'Pioneer Program में Rover का काम क्या है?', opts:['Team को guide करना','Community engagement और contributions करना','Mining setup करना','Token trading'], a:1},
+  {q:'Navigator role का focus किस पर है?', opts:['AI research','Community guidance और mentoring','Token staking','NFT creation'], a:1},
+  {q:'Gensyn में AI models कैसे run होते हैं?', opts:['Centralized cloud servers','Decentralized contributor nodes','Mobile apps only','Private servers'], a:1},
+  {q:'Pioneer Program में योगदान का reward क्या है?', opts:['Recognition, learning, और Gensyn tokens','Free merchandise','Instant money','Gaming perks'], a:0},
+  {q:'Gensyn token का प्रमुख उपयोग क्या है?', opts:['Payments for compute और staking','Meme campaigns','Advertising','Video streaming'], a:0},
+  {q:'Pioneer Program का motto क्या है?', opts:['Build. Learn. Connect.','Earn Fast or Go Home.','Mine & Stake.','Trade. Repeat.'], a:0},
+  {q:'Rover और Navigator roles में मुख्य अंतर क्या है?', opts:['Rover contributes actively; Navigator guides और motivates','Rover codes; Navigator invests','Rover trades; Navigator builds','Rover hosts events; Navigator stakes'], a:0},
+  {q:'Gensyn ultimate vision में क्या शामिल है?', opts:['Decentralized AI को accessible बनाना','Private cloud AI hosting','Web2 apps promotion','NFT-only economy'], a:0},
+  {q:'Pioneer Program में Rover के लिए सबसे ज़रूरी skill क्या है?', opts:['Community engagement','AI coding','Token investment','Graphic design'], a:0}
+];
+
+let idx = 0; const answers = Array(quiz.length).fill(null); let timerInterval = null; let timeLeft = 10;
+const intro = document.getElementById('intro'); const startBtn = document.getElementById('startBtn'); const quizWrap = document.getElementById('quizWrap'); const quizArea = document.getElementById('quizArea'); const prevBtn = document.getElementById('prevBtn'); const nextBtn = document.getElementById('nextBtn'); const progress = document.getElementById('progress'); const resultDiv = document.getElementById('result'); const timerDiv = document.getElementById('timer');
+
+function renderQuestion(i){
+  const item = quiz[i];
+  progress.textContent = `Q${i+1} / ${quiz.length}`;
+  quizArea.innerHTML = `\
+  <div class="question">${i+1}. ${item.q}</div>\
+  <ul class="options">${item.opts.map((opt,j)=>`<li><label><input type="radio" name="opt" value="${j}" ${answers[i]===j?'checked':''}><span>${opt}</span></label></li>`).join('')} </ul>`;
+  prevBtn.disabled = i===0;
+  nextBtn.textContent = i===quiz.length-1 ? 'Submit' : 'Next';
+  startTimer();
+}
+
+function startTimer(){
+  clearInterval(timerInterval);
+  timeLeft=10;
+  timerDiv.textContent=`⏱ ${timeLeft}s`;
+  timerInterval=setInterval(()=>{
+    timeLeft--;
+    timerDiv.textContent=`⏱ ${timeLeft}s`;
+    if(timeLeft<=0){
+      clearInterval(timerInterval);
+      nextQuestion();
+    }
+  },1000);
+}
+
+function nextQuestion(){
+  const selected = document.querySelector('input[name="opt"]:checked');
+  if(selected) answers[idx] = Number(selected.value);
+  if(idx<quiz.length-1){ idx++; renderQuestion(idx); } else submitQuiz();
+}
+
+function showIntro(){ intro.style.display='flex'; quizWrap.style.display='none'; }
+function startQuiz(){ intro.style.display='none'; quizWrap.style.display='block'; renderQuestion(idx); }
+startBtn.addEventListener('click', ()=>{ startQuiz(); window.scrollTo({top:0,behavior:'smooth'}); });
+
+nextBtn.addEventListener('click', nextQuestion);
+prevBtn.addEventListener('click', ()=>{ const selected = document.querySelector('input[name="opt"]:checked'); if(selected) answers[idx] = Number(selected.value); if(idx>0){ idx--; renderQuestion(idx); } });
+
+function submitQuiz(){ clearInterval(timerInterval); const selected = document.querySelector('input[name="opt"]:checked'); if(selected) answers[idx] = Number(selected.value); let score=0; quiz.forEach((q,i)=>{ if(answers[i]===q.a) score++; }); quizArea.style.display='none'; prevBtn.style.display='none'; nextBtn.style.display='none'; timerDiv.style.display='none'; resultDiv.style.display='block'; resultDiv.innerHTML=`You scored <strong>${score}</strong> / ${quiz.length} 🎉`+generateBreakdown(); window.scrollTo({top:0,behavior:'smooth'}); }
+
+function generateBreakdown(){ const ol=document.createElement('ol'); ol.style.textAlign='left'; ol.style.margin='12px auto 0'; ol.style.maxWidth='720px'; ol.style.color='#fff'; ol.style.opacity='0.95'; quiz.forEach((q,i)=>{ const li=document.createElement('li'); const user=answers[i]===null?'No answer':q.opts[answers[i]]; const correct=q.opts[q.a]; li.innerHTML=`<div style="margin:6px 0"><strong>Q${i+1}:</strong> Your: <em>${escapeHtml(user)}</em> — Correct: <em>${escapeHtml(correct)}</em></div>`; ol.appendChild(li); }); return '<div style="margin-top:12px">'+ol.outerHTML+'</div>'; }
+
+function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+showIntro();
+</script>
+</body>
+</html>
